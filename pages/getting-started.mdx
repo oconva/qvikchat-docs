@@ -6,6 +6,19 @@ QvikChat is a framework built on top of Firebase Genkit and LangChain. It allows
 
 If you wish to get started quickly with minimal setup or if you are planning to build a standalone server to serve chat endpoints, its recommended that you start with the [QvikChat Starter Template](#qvikchat-starter-template). It comes pre-configured with support for TypeScript, ESLint, Prettier, Jest, SWC, and more.
 
+## How it works?
+
+Each chat service is defined by defining a **chat endpoint**. The chat endpoint that you define, is the code that gets called when a new request is received at that endpoint. You can define multiple chat services, each with its own endpoint. Each chat endpoint can have various attributes like input data schema, LLM model to be used for processing queries, authentication policy, etc. You defines these attributes when creating the configurations for the chat endpoint.
+
+This is the real superpower of QvikChat. You can define a chat endpoint with support for chat history, authentication, response caching, RAG, and more, in just a few lines of code. You can even store these configurations remotely and load them dynamically at runtime.
+
+There are two ways this can be done:
+
+1. **Using the `configureAndRunServer` method:** This is the easiest way to get started with QvikChat. You can provide a list of endpoint configurations to the `configureAndRunServer` method, and it will start the server with all the defined chat endpoints. To learn more about the `configureAndRunServer` method and the different configurations that you can provide, check the [Configure and Run Server](/core#configure-and-run-server) section.
+2. **Using the `defineChatEndpoint` method:** You can directly call the `defineChatEndpoint` method with the configurations for the chat endpoint, anywhere in your codebase. This is the method that gets called under the hood when you provide the list of endpoint configurations to the `configureAndRunServer` method. When using the `defineChatEndpoint` method, you will have to manually ensure that you setup Firebase Genkit, and that all endpoints are defined before you start the server. To learn more about `defineChatEndpoint` method check the [Define Chat Endpoint](/core#define-chat-endpoint) section.
+
+In this guide, we are going to use the `configureAndRunServer` method to define chat endpoints and start the server.
+
 ## Installing QvikChat Package
 
 You can install QvikChat using the following command:
@@ -43,8 +56,8 @@ Alternatively, you can copy the `.env.tmp` file or rename it to `.env` and fill 
 
 To use QvikChat, the typical workflow would look something like this:
 
-1. **Define Endpoint Configurations:** Each chat service listens for incoming queries at a specific server endpoint. First step is to write the configurations for this chat endpoint. Through these configurations you can easily enable or disable features like chat history, cache, authentication, and RAG. You can also define the LLM model to be used for processing queries, besides other configurations.
-2. **Configure and Run Server:** Once you have defined the chat endpoint configurations, you can use the `configureAndRunServer` method to start the server, passing a list of all endpoint configurations as an argument. Optionally, you can also provide configurations for the server (e.g. port number, cors, etc.), and the configurations for the Firebase Genkit (e.g. plugins you want to enable).
+1. **Define Endpoint Configurations:** Each chat service listens for incoming queries at a specific server endpoint. First step is to write the configurations for this chat endpoint. Through these configurations you can easily enable or disable features like chat history, cache, authentication, and RAG. You can also define the LLM model to be used for processing queries, besides other configurations. To learn more about the different configurations that you can provide, check the [Chat Endpoint Configurations](/core#chat-endpoint-configurations) section.
+2. **Configure and Run Server:** Once you have defined the chat endpoint configurations, you can use the `configureAndRunServer` method to start the server, passing a list of all endpoint configurations as an argument. Optionally, you can also provide configurations for the server (e.g. port number, cors, etc.), and the configurations for the Firebase Genkit (e.g. plugins you want to enable). To learn more about the `configureAndRunServer` method and the different configurations that you can provide, check the [Configure and Run Server](/core#configure-and-run-server) section.
 
 The below code shows a simple example of defining an open-ended chat endpoint in QvikChat. An open-ended chat endpoint basically allows queries related to any topic, i.e., it doesn't place any restrictions on what context the queries should be related to.
 
@@ -74,7 +87,7 @@ Above example points to `http://127.0.0.1:3400`. You can change this port and ho
 
 ## QvikChat Starter Template
 
-To get up and running quickly, you can use the QvikChat starter template. The starter template is a pre-configured project with all the necessary configurations and setup to get you started with QvikChat write quality and reliable code. It comes pre-configured with support for TypeScript, ESLint, Prettier, Jest, SWC, and more, so you can get started with developing the next revolutionary chat app right away, without worrying about all these things.
+To get up and running quickly, you can use the **QvikChat starter template**. The starter template is a pre-configured project with all the necessary configurations and setup to get you started with QvikChat quickly while ensuring code quality and reliability. It comes pre-configured with support for TypeScript, ESLint, Prettier, Jest, SWC, and more, so you can get started with developing the next revolutionary chat service right away.
 
 ### Setup
 
@@ -118,10 +131,10 @@ You can run the following commands to install the dependencies:
 npm install # or pnpm install
 ```
 
-To start the server, run:
+To compile the project code and start the server, run:
 
 ```bash
-npm run start # or pnpm start
+npm run dev # or pnpm dev
 ```
 
 Check the [testing endpoints](#testing-endpoints) section to learn how to test endpoints.
@@ -191,11 +204,3 @@ Depending on which endpoint you wish to test, and where and on which port your s
 ```bash copy
 curl -X POST "http://127.0.0.1:3400/chat" -H "Content-Type: application/json"  -d '{"data": { "query": "Answer in one sentence: What is Firebase Firestore?" } }'
 ```
-
-## How it works?
-
-Each chat service is defined by defining a chat endpoint. The chat endpoint that you define, is the code that gets called when a new request is received at that endpoint. You can define multiple chat services, each with its own endpoint. Each chat endpoint can have various attributes like input data schema, LLM model to be used for processing queries, authentication policy, etc., and you can define these properties and the code that gets executed within an endpoint when defining a chat endpoint.
-
-QvikChat provides you with an extremely easy, flexible, and dynamic way to create server chat endpoints by simply using configurations. This is the real superpower of QvikChat. You can define a chat endpoint with support for chat history, authentication and response caching in just a few lines of code. You can even store these configurations remotely and load them dynamically at runtime.
-
-You can also use the `defineChatEndpoint` method to manually define a chat endpoint. Under the hood, this is the method that gets called when you provide the list of endpoint configurations to the `configureAndRunServer` method. To learn more about `defineChatEndpoint` method and the different chat endpoints that you can define, check the [Chat Endpoints](/chat-endpoints) section.

@@ -7,7 +7,7 @@ The typical workflow would look something like this:
 1. **Define Endpoint Configurations:** Each chat service listens for incoming queries at a specific server endpoint. First step is to write the configurations for this chat endpoint. Through these configurations you can easily enable or disable features like chat history, cache, authentication, and RAG. You can also define the LLM model to be used for processing queries, besides other configurations.
 2. **Configure and Run Server:** Once you have defined the chat endpoint configurations, you can use the `configureAndRunServer` method to start the server, passing a list of all endpoint configurations as an argument. Optionally, you can also provide configurations for the server (e.g. port number, cors, etc.), and the configurations for the Firebase Genkit (e.g. plugins you want to enable).
 
-## Define Endpoint Configurations
+## Chat Endpoint Configurations
 
 To configure a chat endpoint, we need to provide an object with the configurations for the endpoint. These configurations include the endpoint name, the configurations for chat history, cache, RAG, and more. You can use the `ChatEndpointConfig` type provided by QvikChat to define these configurations.
 
@@ -54,7 +54,7 @@ configureAndRunServer({
     port: 3444
     ... // Other configurations for the server
   },
-  genkitConfig: genkitConfig: {
+  genkitConfig: {
     plugins: [
       ... // setup genkit plugins
     ],
@@ -70,3 +70,33 @@ It performs the following three steps in sequential order:
 1. **Setup Genkit:** Setup Firebase Genkit, either by using the default configurations or by using the configurations provided through the `genkitConfig` parameter. You can use this parameter to enable additional Genkit plugins or to add a different LLM model.
 2. **Define Chat Endpoints:** Define the chat endpoints using the configurations provided in the `endpointConfigs` parameter.
 3. **Run the Server:** Once Firebase Genkit is setup and the chat endpoints are defined, start an Express.js server to serve the endpoints. Use the default configurations for the server (e.g., for port number, cors, and other options) unless specific configurations provided for the server through the `serverConfig` parameter.
+
+## Define Chat Endpoint
+
+The `defineChatEndpoint` method can used to define chat endpoints manually before starting the server. Simply provide the configurations for the chat endpoint you want defined to this method directly. An example of how you can define a chat endpoint using the `defineChatEndpoint` method is shown below:
+
+```typescript
+// Close-ended chat endpoint that allows users to ask only health and wellness related questions
+defineChatEndpoint({
+  endpoint: "health-chat",
+  topic: "Health and wellness",
+});
+```
+
+This is the method that gets called under the hood when you provide the list of endpoint configurations to the `configureAndRunServer` method. When using the `defineChatEndpoint` method, you will have to manually ensure that you setup Firebase Genkit, and that all endpoints are defined before you start the server.
+
+```typescript filename="index.ts"
+import { defineChatEndpoint, runServer, setupGenkit } from "@oconva/qvikchat";
+
+// Setup Genkit
+setupGenkit();
+
+// Chat endpoint that allows users to ask only health and wellness related questions
+defineChatEndpoint({
+  endpoint: "t",
+  topic: "health and wellness",
+});
+
+// Run server
+runServer();
+```

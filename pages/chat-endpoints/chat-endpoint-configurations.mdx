@@ -1,52 +1,78 @@
 import { Notice } from "../../components/notice";
+import { ModelConfigTable } from "../../components/config-tables/model-config-table";
+import { RAGConfigTable } from "../../components/config-tables/rag-config-table";
 
 # Chat Endpoint Configurations
 
-You can configure a chat endpoint with various features such as chat history, response caching, and API key authentication, by simply modifying the configurations provided to the `defineChatEndpoint` function. To use this, first import the method as following:
-
-```typescript copy
-import { defineChatEndpoint } from "@oconva/qvikchat/endpoints";
-```
+One of the most powerful features of the QvikChat framework is the flexibility and efficiency it provides in configuring chat endpoints. From chat history, response caching, and RAG to authentication, you can configure a chat endpoint with various features by simply specifying the configurations for the endpoint. QvikChat provides all the underlying architecture to support these advanced features, so you can focus on building the chat service you need.
 
 ## Configurations
 
 Below are some of the chat endpoint configurations you can define.
 
 - `endpoint`: Server endpoint to which queries should be sent to run this chat flow.
-- `chatAgentConfig`: Configurations for the chat agent, like LLM model, system prompt, chat prompt, and tools. [Read more](#chat-agent-config).
-- `verbose`: If set to `true`, returns additional information in the response. May include usage information (like the number of input and output tokens used, input and output characters, etc.), tools calls information, and request details. By default, it is set to `false`. [Read more](#verbose-mode).
-- `responseType`: Type of response that the endpoint should return. Can be `text`, `json`, or `media`. By default, it is set to `text`. [Read more](#response-type).
 
-**Close-ended Chat Configurations**
+### LLM Model Configurations
 
-- `agentType`: Type of chat agent to use for this endpoint. Can set it to "close-ended" to create a close-ended chat endpoint. By default, it is set to "open-ended".
-- `topic`: Topic for close-ended chat agent. Required if RAG is enabled. Queries are restricted to be relevant to the given topic so to prevent unintended use.
+- `modelConfig`: Configuration for the LLM model. This can include parameters like model name, model version, temperature, max output tokens, and safety settings.
 
-**Chat History Configurations**
+<details>
+  <summary>View All Model Configurations</summary>
+  <ModelConfigTable />
+</details>
+
+### Prompts
+
+System prompt is used to configure the behavior, tone, and various other characteristics of the Large Language Model (LLM) model, before response generation. A well-structured system prompt designed with security and safety in mind can not only help generate high quality responses, it will also enable mitigation of LLM hallucinations and deterrence of malicious usage attempts (e.g., prompt injection attacks or LLM jailbreak attacks).
+
+- `systemPrompt`: You can override the default system prompt used by QvikChat by providing your own system prompt written using [Dotprompt]. If not provided, the default system prompt for the agent type will be used.
+- `chatPrompt`: Chat prompt to use for the chat agent. If not provided, the default chat prompt for the agent type will be used.
+
+### Tools
+
+You can add tools to the execution flow of the chat endpoint. From adding simple task executing tools to complex action-taking agent workflows, you can configure the chat endpoint to use the tools you need.
+
+- `tools`: Array of tools to use for the chat agent.
+
+### Context-Restricted Chat
+
+You can create a context-restricted chat endpoint by setting the `agentType` property to `close-ended`. This will create a close-ended chat endpoint that restricts queries to a specific topic. You must provide a `topic` for the close-ended chat agent. This is useful when you want to restrict the chat agent to a specific domain or topic. This helps prevent unintended use of the chat service by ignoring context irrelevant queries, for example, a chat service meant to answer user queries related to a product won't respond to queries about the weather.
+
+- `agentType`: Type of chat agent to use for this endpoint. Can set it to `close-ended` to create a close-ended chat endpoint. By default, it is set to `open-ended`.
+- `topic`: Topic for close-ended chat agent. Required if either `agentType` is set to `close-ended` or if RAG is enabled. Queries are restricted to be relevant to the given topic so to prevent unintended use.
+
+### Chat History Configurations
+
+For adding the ability for the conversations to be continued, you can add support for chat history to the chat endpoint. To learn more about chat history, check [Chat History](/chat-history).
 
 - `enableChatHistory`: Enable chat history for this endpoint. If chat ID is provided, chat history will be fetched and used to generate response. If no chat ID is provided, a new chat ID will be generated to store chat history, and will be returned in the response.
-- `chatHistoryStore`: Chat History Store instance to use for this endpoint.
+- `chatHistoryStore`: [Chat History Store](/chat-history#chat-history-store) instance to use for this endpoint.
 
-**Auth Configurations**
+### Auth Configurations
+
+For adding authentication to the chat endpoint, you can enable authentication and provide an API Key Store instance. To learn more about authentication, check [Authentication](/authentication).
 
 - `enableAuth`: Enable authentication for this endpoint. Must provide an API Key Store instance if set to true.
-- `apiKeyStore`: API Key Store instance to use for this endpoint.
+- `apiKeyStore`: [API Key Store](/authentication#api-key-store) instance to use for this endpoint.
 
-**Cache Configurations**
+### Cache Configurations
+
+To cache responses to frequent queries and reduce response times and costs, you can enable caching for the chat endpoint. To learn more about caching, check [Caching](/caching).
 
 - `enableCache`: Enable caching for this endpoint. Must provide a Cache Store instance if set to true.
-- `cacheStore`: Cache Store instance to use for this endpoint.
+- `cacheStore`: [Cache Store](/caching#cache-store) instance to use for this endpoint.
 
-**RAG Configurations**
+### RAG Configurations
 
-- `topic`: Topic for RAG chat agent. Required if RAG is enabled. Queries are restricted to be relevant to the given topic so to prevent unintended use.
-- `enableRAG`: Enable RAG (Retrieval Augmented Generation) functionality for this endpoint. Must provide a retriever method if set to true.
-- `retriever`: Method to retrieve documents for RAG. Can be obtained from the `getDataRetriever` method.
-- `retrieverConfig`: Configuration for the RAG retriever, for example, number of documents to retrieve, algorithm to use, etc.
+Retrieval Augmented Generation (RAG) is a powerful technique that combines information retrieval with language generation to provide context-aware responses. You can enable RAG for the chat endpoint and provide a retriever method to retrieve documents for RAG. To learn more about RAG, check the [RAG Guide](/rag-guide).
 
-## Verbose Mode
+<RAGConfigTable />
+
+### Observability & Usage
 
 You can set the `verbose` property to `true` to get additional information in the response. This may include usage information (like the number of input and output tokens used, input and output characters, etc.), tools calls information, and request details.
+
+- `verbose`: If set to `true`, returns additional information in the response. May include usage information (like the number of input and output tokens used, input and output characters, etc.), tools calls information, and request details. By default, it is set to `false`. [Read more](#verbose-mode).
 
 ```typescript copy
 defineChatEndpoint({
@@ -119,12 +145,6 @@ defineChatEndpoint({
 Under the hood, each chat endpoint uses a `ChatAgent` to process the query and generate responses. This chat agent has a LLM model specified for response generation, a default system prompt based on agent type, chat prompts, and optionally, any configured tools.
 
 You can use the `chatAgentConfig` property to override the default configurations for the chat agent. Below are the properties you can set in the `chatAgentConfig` object:
-
-- `model`: Name of the LLM model to use for the chat agent. If not provided, the default model for the agent type will be used.
-- `modelConfig`: Configuration for the LLM model. This can include parameters like temperature, max output tokens, and safety settings.
-- `systemPrompt`: Default system prompt to use for the chat agent. If not provided, the default system prompt for the agent type will be used.
-- `chatPrompt`: Default chat prompt to use for the chat agent. If not provided, the default chat prompt for the agent type will be used.
-- `tools`: Array of tools to use for the chat agent.
 
 Please ensure that you have configured the project to use the model, if you specify any specific model name. For using models through the Gemini API or OpenAI API, ensure that you've setup the [correct environment variables](/getting-started#environment-variables). For any other models, please ensure you've added the Genkit plugin correctly. For more information on setting up Genkit plugins, check [Genkit integration](/integrations/genkit).
 
