@@ -11,13 +11,13 @@ Context-aware and topic-specific chat with ability to answer user queries by ret
   Retriever](/rag/data-retrieval)
 </Notice>
 
-You can define an RAG chat endpoint with various features such as chat history, response caching, and API key authentication, by simply modifying the configurations provided to the `defineChatEndpoint` function. To use this, first import the method as following:
+In QvikChat, you essentially write the configurations for a chat endpoint to specify the features you want to enable. To make it easier to write these configurations, we provide a TypeScript interface `ChatEndpointConfig` that you can use to define the chat endpoint configurations.
 
 ```typescript
-import { defineChatEndpoint } from "@oconva/qvikchat/endpoints";
+import { ChatEndpointConfig } from "@oconva/qvikchat";
 ```
 
-Below are some of the RAG chat endpoints you can define.
+Below are some examples of the RAG chat endpoints you can define.
 
 ## RAG Chat
 
@@ -29,7 +29,7 @@ Below example uses a RAG agent to answer user queries related to 'Store Inventor
 
 ```typescript copy {13}
 // Inventory Data chat endpoint with support for RAG
-defineChatEndpoint({
+const endpointConfig: ChatEndpointConfig = {
   endpoint: "chat-rag-inventory",
   topic: "inventory data",
   enableRAG: true,
@@ -37,7 +37,7 @@ defineChatEndpoint({
     filePath: "rag/knowledge-base/test-data/inventory-data.csv",
     generateEmbeddings: true,
   },
-});
+};
 ```
 
 ### Input Schema
@@ -106,7 +106,7 @@ Below RAG agent answers user queries related to 'Store Inventory Data'. We'll in
 
 ```typescript copy
 // Inventory Data chat endpoint with support for RAG and chat history
-defineChatEndpoint({
+const endpointConfig: ChatEndpointConfig = {
   endpoint: "chat-rag-history-inventory",
   topic: "inventory data",
   enableRAG: true,
@@ -116,7 +116,7 @@ defineChatEndpoint({
   },
   enableChatHistory: true,
   chatHistoryStore: new InMemoryChatHistoryStore(),
-});
+};
 ```
 
 ### Input Schema
@@ -203,7 +203,7 @@ testAPIKeyStore.addKey(key, {
 });
 
 // Inventory Data chat endpoint with support for RAG, chat history, cache and auth
-defineChatEndpoint({
+const endpointConfig: ChatEndpointConfig = {
   endpoint: "chat-rag-history-auth-cached-inventory",
   topic: "inventory data",
   enableAuth: true,
@@ -217,7 +217,7 @@ defineChatEndpoint({
     filePath: "rag/knowledge-base/test-data/inventory-data.csv",
     generateEmbeddings: true,
   },
-});
+};
 ```
 
 ### Input Schema
@@ -292,4 +292,4 @@ Endpoint to test: `chat-rag-history-auth-cached-inventory`
 
 ## Configurations
 
-As you can see from above, its quite easy to turn features on and off. For all chat endpoint configurations, please check [Chat Endpoint Configurations](/chat-endpoints/chat-flow-configurations).
+As you can see from above, its quite easy to turn features on and off. For all chat endpoint configurations, please check [Chat Endpoint Configurations](/chat-endpoints/chat-endpoint-configurations).

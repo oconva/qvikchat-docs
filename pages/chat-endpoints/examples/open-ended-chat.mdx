@@ -2,13 +2,13 @@
 
 Unrestricted chat with no restrictions on what topic the user queries can be related to, quite similar to OpenAI's ChatGPT or Google's Gemini front-ends.
 
-You can define an open-ended chat endpoint with various features such as chat history, response caching, and API key authentication, by simply modifying the configurations provided to the `defineChatEndpoint` function. To use this, first import the method as following:
+In QvikChat, you essentially write the configurations for a chat endpoint to specify the features you want to enable. To make it easier to write these configurations, we provide a TypeScript interface `ChatEndpointConfig` that you can use to define the chat endpoint configurations.
 
 ```typescript
-import { defineChatEndpoint } from "@oconva/qvikchat/endpoints";
+import { ChatEndpointConfig } from "@oconva/qvikchat";
 ```
 
-Below are some of the open-ended chat endpoints you can define.
+Below are some examples of the open-ended chat endpoints you can define.
 
 ## Open Chat
 
@@ -22,9 +22,9 @@ Simply, pass the `endpoint` to the `defineChatEndpoint` function to define an op
 
 ```typescript copy
 // Open-ended chat endpoint
-defineChatEndpoint({
+const endpointConfig: ChatEndpointConfig = {
   endpoint: "chat-open",
-});
+};
 ```
 
 ### Input Schema
@@ -99,11 +99,11 @@ Below is an example of how you can define an open-ended chat endpoint that suppo
 import { InMemoryChatHistoryStore } from "@oconva/qvikchat/history";
 
 // Open-ended chat endpoint with support for chat history
-defineChatEndpoint({
+const endpointConfig: ChatEndpointConfig = {
   endpoint: "chat-open-history",
   enableChatHistory: true,
   chatHistoryStore: new InMemoryChatHistoryStore(),
-});
+};
 ```
 
 ### Input Schema
@@ -190,7 +190,7 @@ testAPIKeyStore.addKey(key, {
 });
 
 // Open-ended chat endpoint with support for chat history, authentication, and caching
-defineChatEndpoint({
+const endpointConfig: ChatEndpointConfig = {
   endpoint: "chat-open-history-auth-cached",
   enableChatHistory: true,
   chatHistoryStore: new InMemoryChatHistoryStore(),
@@ -198,7 +198,7 @@ defineChatEndpoint({
   apiKeyStore: testAPIKeyStore,
   enableCache: true,
   cacheStore: new InMemoryCacheStore(),
-});
+};
 ```
 
 ### Input Schema
@@ -271,4 +271,4 @@ Endpoint to test: `chat-open-history-auth-cached`
 
 ## Configurations
 
-As you can see from above, its quite easy to turn features on and off. For all chat endpoint configurations, please check [Chat Endpoint Configurations](/chat-endpoints/chat-flow-configurations).
+As you can see from above, its quite easy to turn features on and off. For all chat endpoint configurations, please check [Chat Endpoint Configurations](/chat-endpoints/chat-endpoint-configurations).

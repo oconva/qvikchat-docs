@@ -2,13 +2,13 @@
 
 Chat endpoint where user queries are restricted to a specific topic. Prevents misuse of the chat service by restricting the usage, for example, a chat service meant to answer queries related to a specific topic like Firebase won't answer user queries related to other topics like solving a calculus assignment question.
 
-You can define an close-ended chat endpoint with various features such as chat history, response caching, and API key authentication, by simply modifying the configurations provided to the `defineChatEndpoint` function. To use this, first import the method as following:
+In QvikChat, you essentially write the configurations for a chat endpoint to specify the features you want to enable. To make it easier to write these configurations, we provide a TypeScript interface `ChatEndpointConfig` that you can use to define the chat endpoint configurations.
 
-```typescript copy
-import { defineChatEndpoint } from "@oconva/qvikchat/endpoints";
+```typescript
+import { ChatEndpointConfig } from "@oconva/qvikchat";
 ```
 
-Below are some of the close-ended chat endpoints you can define.
+Below are some examples of the close-ended chat endpoints you can define.
 
 ## Close Chat
 
@@ -21,11 +21,11 @@ Below is an example of how you can define a close-ended chat endpoint. You can u
 ```typescript copy
 // Close-ended chat endpoint
 // will only answer queries related to specified topic, in this case, 'Firebase'
-defineChatEndpoint({
+const endpointConfig: ChatEndpointConfig = {
   endpoint: "chat-close",
   agentType: "close-ended",
   topic: "Firebase",
-});
+};
 ```
 
 ### Input Schema
@@ -94,13 +94,13 @@ Below is an example of how you can define a close-ended chat endpoint that suppo
 
 ```typescript copy   copy {8}
 // Close-ended chat endpoint with support for chat history
-defineChatEndpoint({
+const endpointConfig: ChatEndpointConfig = {
   endpoint: "chat-close-history",
   agentType: "close-ended",
   topic: "Firebase",
   enableChatHistory: true,
   chatHistoryStore: new InMemoryChatHistoryStore(),
-});
+};
 ```
 
 ### Input Schema
@@ -183,7 +183,7 @@ testAPIKeyStore.addKey(key, {
 });
 
 // Close-ended chat endpoint with support for chat history, authentication, and caching
-defineChatEndpoint({
+const endpointConfig: ChatEndpointConfig = {
   agentType: "close-ended",
   topic: "Firebase",
   endpoint: "chat-close-history-auth-cached",
@@ -193,7 +193,7 @@ defineChatEndpoint({
   apiKeyStore: testAPIKeyStore,
   enableCache: true,
   cacheStore: new InMemoryCacheStore(),
-});
+};
 ```
 
 ### Input Schema
@@ -264,4 +264,4 @@ Endpoint to test: `chat-close-history-auth-cached`
 
 ## Configurations
 
-As you can see from above, its quite easy to turn features on and off. For all chat endpoint configurations, please check [Chat Endpoint Configurations](/chat-endpoints/chat-flow-configurations).
+As you can see from above, its quite easy to turn features on and off. For all chat endpoint configurations, please check [Chat Endpoint Configurations](/chat-endpoints/chat-endpoint-configurations).

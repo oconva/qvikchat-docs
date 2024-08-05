@@ -2,45 +2,47 @@ import Img from "../components/img";
 
 # Chat Endpoints
 
-You can define various chat endpoints based on your requirements.
+Each chat service is defined by defining a **chat endpoint**. The chat endpoint that you define, is the code that gets called when a new request is received at that endpoint. You can define multiple chat services, each with its own endpoint. Each chat endpoint can have various attributes like input data schema, LLM model to be used for processing queries, authentication policy, etc. You defines these attributes when creating the configurations for the chat endpoint.
 
-For each chat endpoint you define, you can easily toggle features on and off. For example, you can enable chat history for any endpoint by simply setting `enableChatHistory` to `true`.
+This is the real superpower of QvikChat. You can define a chat endpoint with support for chat history, authentication, response caching, RAG, and more, in just a few lines of code. You can even store these configurations remotely and load them dynamically at runtime.
 
-It is this flexibility that QvikChat provides that enables you to quickly define custom chat endpoints with only a few lines of code.
+There are two ways this can be done:
 
-All chat endpoints can be defined using a single method: `defineChatEndpoint`. This method takes a configuration object as an argument, which allows you to define the chat endpoint based on your requirements.
+1. **Using the `configureAndRunServer` method:** This is the easiest way to get started with QvikChat. You can provide a list of endpoint configurations to the `configureAndRunServer` method, and it will start the server with all the defined chat endpoints. To learn more about the `configureAndRunServer` method and the different configurations that you can provide, check the [Configure and Run Server](/core#configure-and-run-server) section.
+2. **Using the `defineChatEndpoint` method:** You can directly call the `defineChatEndpoint` method with the configurations for the chat endpoint, anywhere in your codebase. This is the method that gets called under the hood when you provide the list of endpoint configurations to the `configureAndRunServer` method. When using the `defineChatEndpoint` method, you will have to manually ensure that you setup Firebase Genkit, and that all endpoints are defined before you start the server. To learn more about `defineChatEndpoint` method check the [Define Chat Endpoint](/core#define-chat-endpoint) section.
 
-You can import the `defineChatEndpoint` method as shown below:
+## Chat Endpoint Configurations
 
-```typescript copy
-import { defineChatEndpoint } from "@oconva/qvikchat/endpoints";
-```
+One of the most powerful features of the QvikChat framework is the flexibility and efficiency it provides in configuring chat endpoints. From chat history, response caching, and RAG to authentication, you can configure a chat endpoint with various features by simply specifying the configurations for the endpoint.
 
-Below are the three types of chat agents you can define:
+To learn more check [Chat Endpoint Configurations](/chat-endpoints/chat-endpoint-configurations).
 
-## Open-Ended Chat
+## Examples
+
+You can checkout some examples of how to configure endpoints with various features like chat history, topic restrictions, context-awareness, and more.
+
+To make it easier, these examples have been broadly categorized into three types:
+
+### Open-Ended Chat
 
 Unrestricted chat with no restrictions on what topic the user queries can be related to, quite similar to OpenAI's ChatGPT or Google's Gemini front-ends.
 
-[Read more](chat-endpoints/open-ended-chat)
+Check examples of [Open-ended chat](chat-endpoints/examples/open-ended-chat).
 
-## Close-Ended Chat
+### Close-Ended Chat
 
 Chat endpoint where user queries are restricted to a specific topic. Prevents misuse of the chat service by restricting the usage, for example, a chat service meant to answer queries related to a specific topic like Firebase won't answer user queries related to other topics like solving a calculus assignment question.
 
-[Read more](chat-endpoints/close-ended-chat)
+Check examples of [Close-ended chat](chat-endpoints/examples/close-ended-chat)
 
-## RAG Chat (Retrieval Augmented Generation)
+### RAG Chat (Retrieval Augmented Generation)
 
 Context-aware and topic-specific chat with ability to answer user queries by retrieving additional context information from a knowledge base (e.g. from a JSON file or PDF).
 
-[Read more](chat-endpoints/rag-chat)
+Check examples of [RAG chat](chat-endpoints/examples/rag-chat)
 
-Below images gives a high-level overview of how a user query is handled in a RAG chat endpoint.
+## Testing Endpoints
 
-<Img
-  src="/images/rag-history-endpoint-query.png"
-  showSubtitle="true"
-  subtitle="High-level overview of how chat endpoints handle user queries"
-  priority={false}
-/>
+Once you have defined your chat endpoints, you can send queries to them through the Genkit Developer UI or by running your own server.
+
+Learn more about [Testing Chat Endpoints](chat-endpoints/testing-endpoints).

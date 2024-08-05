@@ -21,6 +21,8 @@ Below are some of the chat endpoint configurations you can define.
   <ModelConfigTable />
 </details>
 
+Please ensure that you have configured the project to use the model, if you specify any specific model name. For using models through the Gemini API or OpenAI API, ensure that you've setup the [correct environment variables](/getting-started#environment-variables). For any other models, please ensure you've added the Genkit plugin correctly. For more information on setting up Genkit plugins, check [Genkit integration](/integrations/genkit).
+
 ### Prompts
 
 System prompt is used to configure the behavior, tone, and various other characteristics of the Large Language Model (LLM) model, before response generation. A well-structured system prompt designed with security and safety in mind can not only help generate high quality responses, it will also enable mitigation of LLM hallucinations and deterrence of malicious usage attempts (e.g., prompt injection attacks or LLM jailbreak attacks).
@@ -74,13 +76,8 @@ You can set the `verbose` property to `true` to get additional information in th
 
 - `verbose`: If set to `true`, returns additional information in the response. May include usage information (like the number of input and output tokens used, input and output characters, etc.), tools calls information, and request details. By default, it is set to `false`. [Read more](#verbose-mode).
 
-```typescript copy
-defineChatEndpoint({
-  endpoint: "chat",
-  verbose: true,
-});
-```
-
+<details>
+<summary>More details about verbose output</summary>
 The output produced by a chat endpoint where verbose is enabled, will contain an additional `details` object. This object may contain the following properties:
 
 ```typescript
@@ -119,45 +116,61 @@ type details = {
 
 The details included in the `details` object come directly through [Firebase Genkit](https://github.com/firebase/genkit). The `usage` object contains information about the number of input and output tokens, characters, images, videos, audio files, and any custom data used in the response. The `tool_requests` object contains information about the tools called during the response generation. The `request` object contains the request details, including messages, data, etc.
 
-## Response Type
+</details>
 
-You can set the `responseType` property to specify the type of response that the endpoint should return. The response type can be `text`, `json`, or `media`. By default, it is set to `text`.
+## Multimodal I/O
 
-```typescript copy
-defineChatEndpoint({
-  endpoint: "chat",
-  responseType: "json",
-});
-```
+- `outputSchema`: You can use this property to specify the expected data type of the response that the endpoint should return. This property expects an object with the following properties:
+  - `format`: The format of the response. This can be one of: `text`, `json`, or `media`. By default, it is set to `text`.
+  - `contentType`: The content type of the response. This is required if the `format` is set to `media`.
+  - `schema`: When the `format` is set to `json`, you can optionally provide the data schema that the response should adhere to. This schema can be specified using the [zod](https://www.npmjs.com/package/zod) library. Output from the LLM model will be validated against this schema before being returned.
+
+The below code shows an example of how you can define the configurations for an image generation endpoint (using DALL·E 3 model) and an endpoint that returns JSON output.
 
 <Notice>
   Please note that, if you are using custom prompts with the endpoint, the
-  output schema of these prompts must match the response type that you configure
-  the endpoint with. Currently, `responseType` is available only in alpha
-  version and is still under testing. Presently, responses are returned only as
-  strings when using the default system and chat prompts. You can still get
-  responses back as media or JSON, but you will need to manually parse the
-  response.
+  output schema of these prompts must match the output schema that you configure
+  the endpoint with.
 </Notice>
 
-## Chat Agent Config
+```typescript
+import { ChatEndpointConfig } from "@oconva/qvikchat";
 
-Under the hood, each chat endpoint uses a `ChatAgent` to process the query and generate responses. This chat agent has a LLM model specified for response generation, a default system prompt based on agent type, chat prompts, and optionally, any configured tools.
+// Configurations for the image generation endpoint (using DALL·E 3 model)
+const imgUrlOutputEndpoint: ChatEndpointConfig = {
+  endpoint: "img",
+  modelConfig: {
+    name: "dallE3",
+    response_format: "url",
+  },
+  outputSchema: {
+    format: "media",
+    contentType: "image/png",
+  },
+};
 
-You can use the `chatAgentConfig` property to override the default configurations for the chat agent. Below are the properties you can set in the `chatAgentConfig` object:
-
-Please ensure that you have configured the project to use the model, if you specify any specific model name. For using models through the Gemini API or OpenAI API, ensure that you've setup the [correct environment variables](/getting-started#environment-variables). For any other models, please ensure you've added the Genkit plugin correctly. For more information on setting up Genkit plugins, check [Genkit integration](/integrations/genkit).
+// Configurations for endpoint that returns JSON output
+const jsonOutputEndpoint: ChatEndpointConfig = {
+  endpoint: "chat",
+  outputSchema: {
+    format: "json",
+    schema: z.object({
+      message: z.string(),
+    }),
+  },
+};
+```
 
 ## Example
 
 Below is an example of a comprehensively configured chat endpoint. You don't need to provide all the configurations, only the ones you need. Below example is only for demonstration purposes.
 
 ```typescript copy
+import { ChatEndpointConfig } from "@oconva/qvikchat";
 import { FirestoreAPIKeyStore } from "@oconva/qvikchat/auth";
 import { FirestoreCacheStore } from "@oconva/qvikchat/cache";
 import { getEmbeddingModel } from "@oconva/qvikchat/data-embeddings";
 import { TaskType } from "@oconva/qvikchat/data-retrievers";
-import { defineChatEndpoint } from "@oconva/qvikchat/endpoints";
 import { FirestoreChatHistoryStore } from "@oconva/qvikchat/history";
 import { credential, getFirebaseApp } from "@oconva/qvikchat/firebase";
 
@@ -168,26 +181,24 @@ const firebaseApp = getFirebaseApp({
   ),
 });
 
-// Define chat endpoint with RAG, chat history, cache and auth
+// Configurations for chat endpoint with RAG, chat history, cache and auth
 // uses Firestore API key store, Firestore chat history store, Firestore cache store
 // uses Gemini 15 Pro model for chat and embedding-001 embedding model
 // uses custom retrieval strategy for RAG
-defineChatEndpoint({
+export const endpointConfig: ChatEndpointConfig = {
   endpoint: "chat",
   topic: "inventory data",
-  chatAgentConfig: {
-    model: "gemini15Pro",
-    modelConfig: {
-      version: "latest",
-      temperature: 0.5,
-      maxOutputTokens: 2048,
-      safetySettings: [
-        {
-          category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-          threshold: "BLOCK_LOW_AND_ABOVE",
-        },
-      ],
-    },
+  modelConfig: {
+    name: "gemini15Pro",
+    version: "latest",
+    temperature: 0.5,
+    maxOutputTokens: 2048,
+    safetySettings: [
+      {
+        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+        threshold: "BLOCK_LOW_AND_ABOVE",
+      },
+    ],
   },
   enableAuth: true,
   apiKeyStore: new FirestoreAPIKeyStore({
@@ -221,5 +232,5 @@ defineChatEndpoint({
       taskType: TaskType.RETRIEVAL_DOCUMENT,
     }),
   },
-});
+};
 ```

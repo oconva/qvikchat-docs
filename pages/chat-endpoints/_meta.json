@@ -1,7 +1,5 @@
 {
-  "open-ended-chat": "Open-ended Chat",
-  "close-ended-chat": "Close-ended Chat",
-  "rag-chat": "RAG Chat",
   "chat-endpoint-configurations": "Chat Endpoint Configurations",
+  "examples": "Examples",
   "testing-endpoints": "Testing Endpoints"
 }
